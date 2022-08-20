@@ -7,15 +7,22 @@ const cardSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
   },
-  about: {
+  link: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
   },
-  avatar: {
-    type: String,
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
+  },
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    default: [],
+  }],
+  createdAt: {
+    type: Date,
+    default: Date.now(),
   },
 });
 
