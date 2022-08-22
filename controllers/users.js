@@ -24,3 +24,25 @@ module.exports.createUser = (req, res) => {
     })
     .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
 };
+
+module.exports.updateProfile = (req, res) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true },
+  )
+    .then((user) => res.status(200).send(user))
+    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+};
+
+module.exports.updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true },
+  )
+    .then((user) => res.status(200).send(user))
+    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+};
