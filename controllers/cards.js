@@ -1,4 +1,6 @@
 const Card = require('../models/card');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -18,29 +20,48 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  const id = req.params;
+
+  Card.findById(id)
     .then((card) => {
-      res.status(200).send(card);
+      if (!card) {
+        throw new NotFoundError('Такой карточки нет!');
+      }
+      if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
+        throw new BadRequestError('Невозможно удалить данную карточку');
+      }
+      return Card.findByIdAndRemove(id);
+    })
+    .then((card) => res.status(200).send({ data: card }))
+    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+};
+
+module.exports.likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  )
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Такой карточки нет!');
+      }
+      res.status(200).send({ data: card });
     })
     .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
 };
 
-module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
-  req.params.cardId,
-  { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-  { new: true }
+module.exports.dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
     .then((card) => {
-      res.status(200).send(card);
+      if (!card) {
+        throw new NotFoundError('Такой карточки нет!');
+      }
+      res.status(200).send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' })),
-);
-
-module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
-  req.params.cardId,
-  { $pull: { likes: req.user._id } }, // убрать _id из массива
-  { new: true }
-    .then((card) => {
-      res.status(200).send(card);
-    })
-    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' })),
-);
+    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+};
