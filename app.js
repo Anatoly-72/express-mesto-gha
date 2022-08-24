@@ -12,11 +12,6 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/mestodb ', {
-  useNewUrlParser: true,
-  useUnifiedTopology: false,
-});
-
 app.use((req, res, next) => {
   req.user = {
     _id: '630235efe2ee3e5a9fdd5635',
@@ -28,10 +23,20 @@ app.use((req, res, next) => {
 app.use('/', users);
 app.use('/', cards);
 
+// Обработка запроса на несуществующий адрес
 app.use((req, res) => {
   res.status(ERROR_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
 });
 
-app.listen(PORT, () => {
+// Последовательное подключение: сначала база, затем порт
+async function main() {
+  await mongoose.connect('mongodb://localhost:27017/mestodb ', {
+    useNewUrlParser: true,
+    useUnifiedTopology: false,
+  });
+
+  await app.listen(PORT);
   console.log(`Сервер запущен на ${PORT} порту`);
-});
+}
+
+main();
