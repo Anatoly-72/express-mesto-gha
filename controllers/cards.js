@@ -30,9 +30,6 @@ module.exports.deleteCard = (req, res) => {
     .orFail(() => {
       res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
     })
-    .orFail(() => {
-      res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-    })
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         Card.findByIdAndRemove({
@@ -44,7 +41,13 @@ module.exports.deleteCard = (req, res) => {
         res.status(ERROR_DEL_CARD).send({ message: 'Нельзя удалить чужую карточку' });
       }
     })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+      }
+    });
 };
 
 module.exports.likeCard = (req, res) => {
