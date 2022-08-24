@@ -35,7 +35,13 @@ module.exports.createUser = (req, res) => {
     .then((user) => {
       res.send({ data: user });
     })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+      }
+    });
 };
 
 module.exports.updateProfile = (req, res) => {
