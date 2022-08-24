@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const { ERROR_NOT_FOUND } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -26,6 +27,10 @@ app.use((req, res, next) => {
 
 app.use('/', users);
 app.use('/', cards);
+
+app.use((req, res) => {
+  res.status(ERROR_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
+});
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на ${PORT} порту`);
