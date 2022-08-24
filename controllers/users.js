@@ -14,11 +14,15 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUsersById = (req, res) => {
   User.findById(req.params.userId)
+    .orFail(() => {
+      res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь не найден' });
+    })
     .then((user) => {
-      if (!user) {
-        res.status(ERROR_NOT_FOUND).send('Пользователь не найден');
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь не найден' });
       }
-      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
