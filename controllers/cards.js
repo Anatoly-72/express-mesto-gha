@@ -77,5 +77,11 @@ module.exports.dislikeCard = (req, res) => {
       }
       res.send({ data: card });
     })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+      }
+    });
 };
