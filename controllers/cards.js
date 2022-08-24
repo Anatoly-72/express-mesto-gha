@@ -57,7 +57,7 @@ module.exports.likeCard = (req, res) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
       } else {
         res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
