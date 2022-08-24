@@ -26,3 +26,14 @@
 
 `npm run start` — запускает сервер
 `npm run dev` — запускает сервер с hot-reload
+
+## Инструменты и технологии
+
+* Node.js
+* express.js
+* mongoDB
+* mongoose
+
+## Ссылка на проект
+
+https://github.com/Anatoly-72/express-mesto-gha
