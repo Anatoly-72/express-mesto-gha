@@ -52,6 +52,7 @@ module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   if (!name || !about) {
     res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+    return;
   }
   User.findByIdAndUpdate(
     req.user._id,
@@ -61,10 +62,17 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
+      } else {
+        res.send({ data: user });
       }
-      res.send({ data: user });
     })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+      }
+    });
 };
 
 module.exports.updateAvatar = (req, res) => {
@@ -77,14 +85,15 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
+      } else {
+        res.send({ data: user });
       }
-      res.send({ data: user })
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-          } else {
-            res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
-          }
-        });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+      }
     });
 };

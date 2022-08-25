@@ -20,15 +20,16 @@ module.exports.createCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
       }
-    })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findById(req.params.cardId)
     .orFail(() => {
-      res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+      throw new Error('NotFound');
     })
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
@@ -42,7 +43,9 @@ module.exports.deleteCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.message === 'NotFound') {
+        res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+      } else if (err.name === 'CastError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
       } else {
         res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
@@ -59,8 +62,9 @@ module.exports.likeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+      } else {
+        res.send({ data: card });
       }
-      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -80,8 +84,9 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+      } else {
+        res.send({ data: card });
       }
-      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
