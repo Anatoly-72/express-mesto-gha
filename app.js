@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const { createUser, login } = require('./controllers/users');
 const { ERROR_NOT_FOUND } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
@@ -22,6 +23,9 @@ app.use((req, res, next) => {
 
 app.use('/', users);
 app.use('/', cards);
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 // Обработка запроса на несуществующий адрес
 app.use((req, res) => {
