@@ -1,15 +1,31 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
   ERROR_SERVER,
   ERROR_NOT_FOUND,
   ERROR_BAD_REQUEST,
+  ERROR_BAD_AUTH,
 } = require('../utils/constants');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch(() => {
+      res.status(ERROR_BAD_AUTH).send({ message: 'Неправильные почта или пароль' });
+    });
 };
 
 module.exports.getUsersById = (req, res) => {
@@ -31,8 +47,22 @@ module.exports.getUsersById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  if (!email || !password) {
+    res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
+  }
+
+  User.create({
+    name, about, avatar, email, password,
+  });
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email: req.body.email,
+      password: hash, // записываем хеш в базу
+    }))
     .then((user) => {
       res.send({ data: user });
     })
