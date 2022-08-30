@@ -58,13 +58,20 @@ module.exports.createUser = (req, res) => {
   User.create({
     name, about, avatar, email, password,
   });
+
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       email: req.body.email,
       password: hash, // записываем хеш в базу
     }))
     .then((user) => {
-      res.send({ data: user });
+      res.send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
