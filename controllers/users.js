@@ -46,6 +46,19 @@ module.exports.getUsersById = (req, res) => {
     });
 };
 
+// GET /users/me — возвращает информацию о текущем пользователе
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
+      } else {
+        res.send({ data: user });
+      }
+    })
+    .catch(next);
+};
+
 module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
