@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const { ERROR_NOT_FOUND } = require('./utils/constants');
 
@@ -13,11 +14,16 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/', users);
-app.use('/', cards);
-
+// роуты, не требующие авторизации
 app.post('/signin', login);
 app.post('/signup', createUser);
+
+// авторизация
+app.use(auth);
+
+// роуты, которым авторизация нужна
+app.use('/', users);
+app.use('/', cards);
 
 // Обработка запроса на несуществующий адрес
 app.use((req, res) => {
