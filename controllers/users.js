@@ -133,6 +133,7 @@ module.exports.createUser = (req, res, next) => {
 //     });
 // };
 
+// PATCH /users/me — обновляем профиль
 module.exports.updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
 
