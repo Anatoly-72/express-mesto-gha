@@ -8,8 +8,6 @@ const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 
 const {
-  ERROR_SERVER,
-  ERROR_NOT_FOUND,
   ERROR_BAD_REQUEST,
   SEKRET_KEY,
   STATUS_CREATED,
@@ -56,19 +54,6 @@ module.exports.getUsersById = (req, res, next) => {
 };
 
 // GET /users/me — возвращаем информацию о текущем пользователе
-// module.exports.getCurrentUser = (req, res, next) => {
-//   User.findById(req.user._id)
-//     .then((user) => {
-//       if (!user) {
-
-//       } else {
-//         res.send({ data: user });
-//       }
-//     })
-//     .catch(next);
-// };
-
-// GET /users/me — возвращаем информацию о текущем пользователе
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
@@ -106,6 +91,7 @@ module.exports.createUser = (req, res, next) => {
     .catch(next);
 };
 
+// PATCH /users/me — обновляем профиль
 module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   if (!name || !about) {
@@ -131,8 +117,8 @@ module.exports.updateProfile = (req, res, next) => {
       }
     });
 };
-
-module.exports.updateAvatar = (req, res) => {
+// PATCH /users/me/avatar — обновляем аватар профиля
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -141,16 +127,16 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
+        throw new NotFoundError('Пользователь не найден');
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+        next(new BadRequestError('Ошибка валидации данных'));
       } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
