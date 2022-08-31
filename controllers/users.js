@@ -56,29 +56,29 @@ module.exports.getUsersById = (req, res, next) => {
 };
 
 // GET /users/me — возвращаем информацию о текущем пользователе
-// module.exports.getCurrentUser = (req, res, next) => {
-//   User.findById(req.user._id)
-//     .then((user) => {
-//       if (!user) {
-//
-//       } else {
-//         res.send({ data: user });
-//       }
-//     })
-//     .catch(next);
-// };
-
-// GET /users/me — возвращаем информацию о текущем пользователе
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден');
+        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
+      } else {
+        res.send({ data: user });
       }
-      res.send({ data: user });
     })
     .catch(next);
 };
+
+// GET /users/me — возвращаем информацию о текущем пользователе
+// module.exports.getCurrentUser = (req, res, next) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (!user) {
+//         throw new NotFoundError('Пользователь не найден');
+//       }
+//       res.send({ data: user });
+//     })
+//     .catch(next);
+// };
 
 // POST /signup — создаём пользователя по обязательным полям email и password
 module.exports.createUser = (req, res, next) => {
