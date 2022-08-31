@@ -7,6 +7,7 @@ const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const { ERROR_NOT_FOUND } = require('./utils/constants');
+const { ERROR_SERVER } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -44,7 +45,15 @@ async function main() {
   console.log(`Сервер запущен на ${PORT} порту`);
 }
 
-// централизованная обработка ошибок
+// Обработка ошибок celebrate
 app.use(errors());
+
+// централизованная обработка ошибок
+app.use((err, req, res, next) => {
+  const { statusCode = ERROR_SERVER, message } = err;
+  const errorMessage = (statusCode === ERROR_SERVER) ? 'Ошибка на сервере' : message;
+  res.status(statusCode).send({ message: errorMessage });
+  return next();
+});
 
 main();

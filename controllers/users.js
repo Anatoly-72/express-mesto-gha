@@ -59,7 +59,43 @@ module.exports.getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+// module.exports.createUser = (req, res) => {
+//   const {
+//     name, about, avatar, email, password,
+//   } = req.body;
+
+//   if (!email || !password) {
+//     res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
+//   }
+
+//   User.create({
+//     name, about, avatar, email, password,
+//   });
+
+//   bcrypt.hash(req.body.password, 10)
+//     .then((hash) => User.create({
+//       email: req.body.email,
+//       password: hash, // записываем хеш в базу
+//     }))
+//     .then((user) => {
+//       res.send({
+//         name: user.name,
+//         about: user.about,
+//         avatar: user.avatar,
+//         _id: user._id,
+//         email: user.email,
+//       });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'ValidationError') {
+//         res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+//       } else {
+//         res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+//       }
+//     });
+// };
+
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -68,31 +104,22 @@ module.exports.createUser = (req, res) => {
     res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
   }
 
-  User.create({
-    name, about, avatar, email, password,
-  });
-
-  bcrypt.hash(req.body.password, 10)
+  bcrypt.hash(password, 10)
     .then((hash) => User.create({
+      name,
+      about,
+      avatar,
       email: req.body.email,
-      password: hash, // записываем хеш в базу
-    }))
-    .then((user) => {
-      res.send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
-        email: user.email,
-      });
+      password: hash,
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-      } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
-      }
-    });
+      .then(() => res.send({ message: 'OK' }))
+      .catch((err) => {
+        if (err.code === 11000) {
+          next(new ConflictError('409 - Пользователь с такой почтой уже существует'));
+        } else {
+          next(err);
+        }
+      }));
 };
 
 module.exports.updateProfile = (req, res) => {
