@@ -140,15 +140,17 @@ module.exports.updateUserProfile = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+        throw new NotFoundError('Пользователь не найден.');
+      } else {
+        res.send({ data: user });
       }
-      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при обновлении пользователя'));
+        next(new BadRequestError('Ошибка валидации данных'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
