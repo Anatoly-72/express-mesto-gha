@@ -21,8 +21,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // роуты, не требующие авторизации
 app.post('/signin', login);
 
-
-
 // app.post('/signup', createUser);
 
 app.post('/signup', celebrate({
