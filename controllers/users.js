@@ -3,60 +3,62 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const ExistEmailError = require('../errors/exist-email-err');
+const BadAuthError = require('../errors/bad-auth-err');
+const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
 
 const {
   ERROR_SERVER,
   ERROR_NOT_FOUND,
   ERROR_BAD_REQUEST,
-  ERROR_BAD_AUTH,
+  SEKRET_KEY,
   STATUS_CREATED,
 } = require('../utils/constants');
 
 // GET /users — возвращаем всех пользователей
-// module.exports.getUsers = (req, res, next) => {
-//   User.find({})
-//     .then((users) => res.send({ data: users }))
-//     .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
-// };
-
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((result) => res.send(result))
     .catch(next);
 };
 
-module.exports.login = (req, res) => {
+// login (/POST) — авторизация(залогинивание) пользователя по email и password
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SEKRET_KEY, { expiresIn: '7d' });
       res.send({ token });
     })
     .catch(() => {
-      res.status(ERROR_BAD_AUTH).send({ message: 'Неправильные почта или пароль' });
+      next(new BadAuthError('Неправильные почта или пароль.'));
     });
 };
 
-module.exports.getUsersById = (req, res) => {
+// GET /users/:userId — возвращаем пользователя по _id
+module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.userId)
+    // .orFail(() => {
+    //   next(new NotFoundError('Пользователь не найден'));
+    // })
     .then((user) => {
       if (user) {
         res.send({ data: user });
       } else {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь не найден' });
+        next(new NotFoundError('Пользователь не найден'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+        next(new BadRequestError('Ошибка валидации данных'));
       } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-// GET /users/me — возвращает информацию о текущем пользователе
+// GET /users/me — возвращаем информацию о текущем пользователе
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {

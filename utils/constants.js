@@ -7,6 +7,8 @@ const ERROR_NOT_FOUND = 404;
 const ERROR_EXIST_EMAIL = 409;
 const ERROR_SERVER = 500;
 
+const SEKRET_KEY = 'some-secret-key';
+
 module.exports = {
   STATUS_OK,
   STATUS_CREATED,
@@ -16,4 +18,5 @@ module.exports = {
   ERROR_NOT_FOUND,
   ERROR_EXIST_EMAIL,
   ERROR_SERVER,
+  SEKRET_KEY,
 };
