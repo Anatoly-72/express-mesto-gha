@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+
 const User = require('../models/user');
 const ExistEmailError = require('../errors/exist-email-err');
 
@@ -11,10 +12,17 @@ const {
   STATUS_CREATED,
 } = require('../utils/constants');
 
-module.exports.getUsers = (req, res) => {
+// GET /users — возвращаем всех пользователей
+// module.exports.getUsers = (req, res, next) => {
+//   User.find({})
+//     .then((users) => res.send({ data: users }))
+//     .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+// };
+
+module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .then((result) => res.send(result))
+    .catch(next);
 };
 
 module.exports.login = (req, res) => {
@@ -60,42 +68,6 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .catch(next);
 };
-
-// module.exports.createUser = (req, res) => {
-//   const {
-//     name, about, avatar, email, password,
-//   } = req.body;
-
-//   if (!email || !password) {
-//     res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
-//   }
-
-//   User.create({
-//     name, about, avatar, email, password,
-//   });
-
-//   bcrypt.hash(req.body.password, 10)
-//     .then((hash) => User.create({
-//       email: req.body.email,
-//       password: hash, // записываем хеш в базу
-//     }))
-//     .then((user) => {
-//       res.send({
-//         name: user.name,
-//         about: user.about,
-//         avatar: user.avatar,
-//         _id: user._id,
-//         email: user.email,
-//       });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'ValidationError') {
-//         res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-//       } else {
-//         res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
-//       }
-//     });
-// };
 
 // POST /signup — создаём пользователя по обязательным полям email и password
 module.exports.createUser = (req, res, next) => {
