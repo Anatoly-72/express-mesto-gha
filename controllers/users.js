@@ -39,14 +39,11 @@ module.exports.login = (req, res, next) => {
 // GET /users/:userId — возвращаем пользователя по _id
 module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.userId)
-    // .orFail(() => {
-    //   next(new NotFoundError('Пользователь не найден'));
-    // })
     .then((user) => {
       if (user) {
         res.send({ data: user });
       } else {
-        next(new NotFoundError('Пользователь не найден'));
+        throw new NotFoundError('Пользователь не найден');
       }
     })
     .catch((err) => {
@@ -59,14 +56,26 @@ module.exports.getUsersById = (req, res, next) => {
 };
 
 // GET /users/me — возвращаем информацию о текущем пользователе
+// module.exports.getCurrentUser = (req, res, next) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (!user) {
+//         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
+//       } else {
+//         res.send({ data: user });
+//       }
+//     })
+//     .catch(next);
+// };
+
+// GET /users/me — возвращаем информацию о текущем пользователе
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
-      } else {
-        res.send({ data: user });
+        throw new NotFoundError('Пользователь не найден');
       }
+      res.send({ data: user });
     })
     .catch(next);
 };
