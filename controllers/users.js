@@ -133,15 +133,22 @@ module.exports.createUser = (req, res, next) => {
 //     });
 // };
 
-module.exports.updateProfile = (req, res, next) => {
+module.exports.updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true, upsert: true },
-  )
-    .then((user) => res.send({ data: user }))
-    .catch(next);
+
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Переданы некорректные данные при обновлении пользователя'));
+      }
+      return next(err);
+    });
 };
 
 module.exports.updateAvatar = (req, res) => {
