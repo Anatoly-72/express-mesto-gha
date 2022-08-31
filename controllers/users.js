@@ -1,12 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const ExistEmailError = require('../errors/exist-email-err');
 
 const {
   ERROR_SERVER,
   ERROR_NOT_FOUND,
   ERROR_BAD_REQUEST,
   ERROR_BAD_AUTH,
+  STATUS_CREATED,
 } = require('../utils/constants');
 
 module.exports.getUsers = (req, res) => {
@@ -95,6 +97,7 @@ module.exports.getCurrentUser = (req, res, next) => {
 //     });
 // };
 
+// POST /signup — создаём пользователя по обязательным полям email и password
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
@@ -104,22 +107,20 @@ module.exports.createUser = (req, res, next) => {
     res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
   }
 
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email: req.body.email,
-      password: hash,
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ExistEmailError('Такой пользователь уже существует!');
+      }
+      return bcrypt.hash(password, 10);
     })
-      .then(() => res.send({ message: 'OK' }))
-      .catch((err) => {
-        if (err.code === 11000) {
-          next(new ConflictError('409 - Пользователь с такой почтой уже существует'));
-        } else {
-          next(err);
-        }
-      }));
+    .then((hash) => User.create({
+      email, password: hash, name, about, avatar,
+    }))
+    .then((user) => res
+      .status(STATUS_CREATED)
+      .send({ _id: user._id, email: user.email }))
+    .catch(next);
 };
 
 module.exports.updateProfile = (req, res) => {
