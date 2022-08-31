@@ -2,15 +2,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
-// const ExistEmailError = require('../errors/exist-email-err');
+const ExistEmailError = require('../errors/exist-email-err');
 const BadAuthError = require('../errors/bad-auth-err');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 
 const {
-  ERROR_BAD_REQUEST,
+  // ERROR_BAD_REQUEST,
   SEKRET_KEY,
-  STATUS_CREATED,
+  // STATUS_CREATED,
 } = require('../utils/constants');
 
 // GET /users — возвращаем всех пользователей
@@ -66,32 +66,58 @@ module.exports.getCurrentUser = (req, res, next) => {
 };
 
 // POST /signup — создаём пользователя по обязательным полям email и password
+// module.exports.createUser = (req, res, next) => {
+//   const {
+//     name, about, avatar, email, password,
+//   } = req.body;
+
+//   if (!email || !password) {
+//     res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
+//   }
+
+//   User.findOne({ email })
+//     .then((user) => {
+//       if (user) {
+//         throw new ExistEmailError('Такой пользователь уже существует!');
+//       }
+//       return bcrypt.hash(password, 10);
+//     })
+//     .then((hash) => User.create({
+//       email, password: hash, name, about, avatar,
+//     }))
+//     .then((user) => res
+//       .status(STATUS_CREATED)
+//       .send({ _id: user._id, email: user.email }))
+//     .catch(next);
+// };
+
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
 
   if (!email || !password) {
-    res.status(ERROR_BAD_REQUEST).send({ message: 'Поля email и password обязательны' });
+    return res.status(BadRequestError).send({ message: 'Поля email и password обязательны' });
   }
-
-  User.findOne({ email })
-    .then((user) => {
-      if (user) {
-        // throw new ExistEmailError('Такой пользователь уже существует!');
-        res.status(200).send({
-          name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email,
-        });
-      }
-      return bcrypt.hash(password, 10);
-    })
+  // хешируем пароль
+  return bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
-      email, password: hash, name, about, avatar,
+      name, about, avatar, email: req.body.email, password: hash,
     }))
-    .then((user) => res
-      .status(STATUS_CREATED)
-      .send({ _id: user._id, email: user.email }))
-    .catch(next);
+    .then((user) => {
+      res.status(200).send({
+        name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email,
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      }
+      if (err.code === 11000) {
+        return next(new ExistEmailError('Передан уже зарегистрированный email.'));
+      }
+      return next(err);
+    });
 };
 
 // PATCH /users/me — обновляем профиль
