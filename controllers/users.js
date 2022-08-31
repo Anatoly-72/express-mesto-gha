@@ -106,41 +106,19 @@ module.exports.createUser = (req, res, next) => {
     .catch(next);
 };
 
-// module.exports.updateProfile = (req, res) => {
-//   const { name, about } = req.body;
-//   if (!name || !about) {
-//     res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-//     return;
-//   }
-//   User.findByIdAndUpdate(
-//     req.user._id,
-//     { name, about },
-//     { new: true, runValidators: true },
-//   )
-//     .then((user) => {
-//       if (!user) {
-//         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
-//       } else {
-//         res.send({ data: user });
-//       }
-//     })
-//     .catch((err) => {
-//       if (err.name === 'ValidationError') {
-//         res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-//       } else {
-//         res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
-//       }
-//     });
-// };
-
-// PATCH /users/me — обновляем профиль
-module.exports.updateUserProfile = (req, res, next) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+  if (!name || !about) {
+    throw new BadRequestError('Ошибка валидации данных');
+  }
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден.');
+        throw new NotFoundError('Пользователь не найден');
       } else {
         res.send({ data: user });
       }
