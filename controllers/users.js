@@ -60,7 +60,7 @@ module.exports.getUsersById = (req, res, next) => {
 //   User.findById(req.user._id)
 //     .then((user) => {
 //       if (!user) {
-//         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
+//
 //       } else {
 //         res.send({ data: user });
 //       }
