@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
-const ExistEmailError = require('../errors/exist-email-err');
+// const ExistEmailError = require('../errors/exist-email-err');
 const BadAuthError = require('../errors/bad-auth-err');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
@@ -78,7 +78,10 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new ExistEmailError('Такой пользователь уже существует!');
+        // throw new ExistEmailError('Такой пользователь уже существует!');
+        res.status(200).send({
+          name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email,
+        });
       }
       return bcrypt.hash(password, 10);
     })
