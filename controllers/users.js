@@ -72,7 +72,6 @@ module.exports.createUser = (req, res, next) => {
   } = req.body;
 
   if (!email || !password) {
-    // return res.status(BadRequestError).send({ message: 'Поля email и password обязательны' });
     throw new BadRequestError('Поля email и password обязательны');
   }
   // хешируем пароль
