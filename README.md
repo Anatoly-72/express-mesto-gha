@@ -35,6 +35,7 @@
 * mongoose
 * Joi
 * celebrate
+* validator
 
 ## Ссылка на проект
 
