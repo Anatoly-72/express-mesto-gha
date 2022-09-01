@@ -5,8 +5,8 @@ const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 const validator = require('validator');
 
-const users = require('./routes/users');
-const cards = require('./routes/cards');
+const routerUsers = require('./routes/users');
+const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 
@@ -60,8 +60,8 @@ app.post('/signup', celebrate({
 app.use(auth);
 
 // роуты, которым авторизация нужна
-app.use('/', users);
-app.use('/', cards);
+app.use('/', routerUsers);
+app.use('/', routerCards);
 
 // Обработка запроса на несуществующий адрес
 app.use((req, res) => {
