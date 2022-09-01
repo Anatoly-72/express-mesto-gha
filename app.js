@@ -27,7 +27,7 @@ app.post('/signin', celebrate({
       return helpers.message('Некорректный email');
     }),
     password: Joi.string().required(),
-  }),
+  }).unknown(true),
 }), login);
 
 app.post('/signup', celebrate({
