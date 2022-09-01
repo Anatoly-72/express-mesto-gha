@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     validate: {
-      validator: (v) => isEmail(v),
+      validator: (value) => isEmail(value),
       message: 'Некорректный email',
     },
   },

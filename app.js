@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-
+const validator = require('validator');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
@@ -21,8 +21,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    email: Joi.string().required().custom((value, helpers) => {
+      if (validator.isEmail(value)) {
+        return value;
+      }
+      return helpers.message('Некорректный email');
+    }),
+    password: Joi.string().required(),
   }),
 }), createUser);
 
