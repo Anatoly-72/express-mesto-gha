@@ -10,6 +10,7 @@ const BadRequestError = require('../errors/bad-request-err');
 const {
   STATUS_OK,
   SEKRET_KEY,
+  SALT_ROUNDS,
 } = require('../utils/constants');
 
 // GET /users — возвращаем всех пользователей
@@ -65,31 +66,6 @@ module.exports.getCurrentUser = (req, res, next) => {
 };
 
 // POST /signup — создаём пользователя по обязательным полям email и password
-// module.exports.createUser = (req, res, next) => {
-//   const {
-//     name, about, avatar, email, password,
-//   } = req.body;
-
-//   if (!email || !password) {
-//     throw new BadRequestError('Поля email и password обязательны');
-//   }
-
-//   User.findOne({ email })
-//     .then((user) => {
-//       if (user) {
-//         throw new ExistEmailError('Такой пользователь уже существует!');
-//       }
-//       return bcrypt.hash(password, 10);
-//     })
-//     .then((hash) => User.create({
-//       email, password: hash, name, about, avatar,
-//     }))
-//     .then((user) => res
-//       .status(STATUS_CREATED)
-//       .send({ _id: user._id, email: user.email }))
-//     .catch(next);
-// };
-
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
@@ -99,9 +75,13 @@ module.exports.createUser = (req, res, next) => {
     return res.status(BadRequestError).send({ message: 'Поля email и password обязательны' });
   }
   // хешируем пароль
-  return bcrypt.hash(req.body.password, 10)
+  return bcrypt.hash(req.body.password, SALT_ROUNDS)
     .then((hash) => User.create({
-      name, about, avatar, email: req.body.email, password: hash,
+      name,
+      about,
+      avatar,
+      email: req.body.email,
+      password: hash,
     }))
     .then((user) => {
       res.status(STATUS_OK).send({
@@ -149,6 +129,7 @@ module.exports.updateProfile = (req, res, next) => {
       }
     });
 };
+
 // PATCH /users/me/avatar — обновляем аватар профиля
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;

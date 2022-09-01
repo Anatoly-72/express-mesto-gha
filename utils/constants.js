@@ -10,6 +10,7 @@ const ERROR_SERVER = 500;
 const CHECK_AVATAR = /^https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;=]{2,}#?$/;
 
 const SEKRET_KEY = 'some-secret-key';
+const SALT_ROUNDS = 10;
 
 module.exports = {
   STATUS_OK,
@@ -22,4 +23,5 @@ module.exports = {
   ERROR_SERVER,
   SEKRET_KEY,
   CHECK_AVATAR,
+  SALT_ROUNDS,
 };

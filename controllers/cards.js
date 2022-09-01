@@ -1,32 +1,36 @@
 const Card = require('../models/card');
+// const ExistEmailError = require('../errors/exist-email-err');
+// const BadAuthError = require('../errors/bad-auth-err');
+const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const DelCardError = require('../errors/del-card-err');
 
 const {
   ERROR_SERVER,
   ERROR_NOT_FOUND,
-  ERROR_DEL_CARD,
   ERROR_BAD_REQUEST,
 } = require('../utils/constants');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' }));
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+        next(new BadRequestError('Ошибка валидации данных'));
       } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail(() => {
       throw new Error('NotFound');
@@ -39,16 +43,16 @@ module.exports.deleteCard = (req, res) => {
         })
           .then((delCard) => res.send({ data: delCard }));
       } else {
-        res.status(ERROR_DEL_CARD).send({ message: 'Нельзя удалить чужую карточку' });
+        throw new DelCardError('Нельзя удалить чужую карточку');
       }
     })
     .catch((err) => {
       if (err.message === 'NotFound') {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+        next(new NotFoundError('Карточки с таким id не найдено'));
       } else if (err.name === 'CastError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+        next(new BadRequestError('Ошибка валидации данных'));
       } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
