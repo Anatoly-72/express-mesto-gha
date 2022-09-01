@@ -8,7 +8,7 @@ const users = require('./routes/users');
 const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
-const { ERROR_NOT_FOUND, ERROR_SERVER } = require('./utils/constants');
+const { ERROR_SERVER } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -52,11 +52,11 @@ app.use('/', users);
 app.use('/', cards);
 
 // Обработка запроса на несуществующий адрес
-app.use((req, res) => {
-  res
-    .status(ERROR_NOT_FOUND)
-    .send({ message: 'Запрашиваемая страница не найдена' });
-});
+// app.use((req, res) => {
+//   res
+//     .status(ERROR_NOT_FOUND)
+//     .send({ message: 'Запрашиваемая страница не найдена' });
+// });
 
 // Последовательное подключение: сначала база, затем порт
 async function main() {
