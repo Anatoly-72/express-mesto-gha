@@ -33,6 +33,8 @@
 * express.js
 * mongoDB
 * mongoose
+* Joi
+* celebrate
 
 ## Ссылка на проект
 
