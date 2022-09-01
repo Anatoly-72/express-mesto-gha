@@ -1,15 +1,7 @@
 const Card = require('../models/card');
-// const ExistEmailError = require('../errors/exist-email-err');
-// const BadAuthError = require('../errors/bad-auth-err');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const DelCardError = require('../errors/del-card-err');
-
-const {
-  ERROR_SERVER,
-  ERROR_NOT_FOUND,
-  ERROR_BAD_REQUEST,
-} = require('../utils/constants');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -57,7 +49,7 @@ module.exports.deleteCard = (req, res, next) => {
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -65,21 +57,21 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+        throw new NotFoundError('Карточки с таким id не найдено');
       } else {
         res.send({ data: card });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+        next(new BadRequestError('Ошибка валидации данных'));
       } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -87,16 +79,16 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточки с таким id не найдено' });
+        throw new NotFoundError('Карточки с таким id не найдено');
       } else {
         res.send({ data: card });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+        next(new BadRequestError('Ошибка валидации данных'));
       } else {
-        res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
