@@ -8,6 +8,7 @@ const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 
 const {
+  STATUS_OK,
   // ERROR_BAD_REQUEST,
   SEKRET_KEY,
   // STATUS_CREATED,
@@ -105,8 +106,12 @@ module.exports.createUser = (req, res, next) => {
       name, about, avatar, email: req.body.email, password: hash,
     }))
     .then((user) => {
-      res.status(200).send({
-        name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email,
+      res.status(STATUS_OK).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+        email: user.email,
       });
     })
     .catch((err) => {
