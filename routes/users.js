@@ -29,12 +29,6 @@ users.patch('/users/me', celebrate({
   }),
 }), updateProfile);
 
-// users.patch('/users/me/avatar', updateAvatar);
-
-users.patch('/users/me/avatar', celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
-  }),
-}), updateAvatar);
+users.patch('/users/me/avatar', updateAvatar);
 
 module.exports = users;
