@@ -30,7 +30,7 @@ app.post('/signup', celebrate({
       return helpers.message('Некорректный email');
     }),
     password: Joi.string().required(),
-  }),
+  }).unknown(true),
 }), createUser);
 
 // авторизация
