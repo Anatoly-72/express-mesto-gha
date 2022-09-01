@@ -9,9 +9,7 @@ const BadRequestError = require('../errors/bad-request-err');
 
 const {
   STATUS_OK,
-  // ERROR_BAD_REQUEST,
   SEKRET_KEY,
-  // STATUS_CREATED,
 } = require('../utils/constants');
 
 // GET /users — возвращаем всех пользователей

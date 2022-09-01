@@ -7,6 +7,8 @@ const ERROR_NOT_FOUND = 404;
 const ERROR_EXIST_EMAIL = 409;
 const ERROR_SERVER = 500;
 
+const CHECK_AVATAR = /^https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;=]{2,}#?$/;
+
 const SEKRET_KEY = 'some-secret-key';
 
 module.exports = {
@@ -19,4 +21,5 @@ module.exports = {
   ERROR_EXIST_EMAIL,
   ERROR_SERVER,
   SEKRET_KEY,
+  CHECK_AVATAR,
 };
