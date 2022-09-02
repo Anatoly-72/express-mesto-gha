@@ -27,6 +27,15 @@ app.use((req, res, next) => {
 //     .send({ message: 'Запрашиваемая страница не найдена' });
 // });
 
+// централизованная обработка ошибок
+app.use(errors());
+app.use((err, req, res, next) => {
+  const { statusCode = ERROR_SERVER, message } = err;
+  const errorMessage = statusCode === ERROR_SERVER ? 'Ошибка на сервере' : message;
+  res.status(statusCode).send({ message: errorMessage });
+  return next();
+});
+
 // Последовательное подключение: сначала база, затем порт
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb ', {
@@ -37,14 +46,5 @@ async function main() {
   await app.listen(PORT);
   console.log(`Сервер запущен на ${PORT} порту`);
 }
-
-// централизованная обработка ошибок
-app.use(errors());
-app.use((err, req, res, next) => {
-  const { statusCode = ERROR_SERVER, message } = err;
-  const errorMessage = statusCode === ERROR_SERVER ? 'Ошибка на сервере' : message;
-  res.status(statusCode).send({ message: errorMessage });
-  return next();
-});
 
 main();
