@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
-const NotFoundError = require('./errors/not-found-err');
+// const NotFoundError = require('./errors/not-found-err');
 const { ERROR_SERVER } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
@@ -12,10 +12,6 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use((req, res, next) => {
-  next(new NotFoundError('Запрашиваемая страница не найдена'));
-});
 
 // подключаем роуты
 app.use(routes);
