@@ -24,29 +24,27 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(() => {
-      throw new Error('NotFound');
-    })
+    .orFail(
+      () => new NotFoundError('Пользователь с указанным id не существует'),
+    )
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         Card.findByIdAndRemove({
           _id: req.params.cardId,
           owner: req.user._id,
-        })
-          .then((delCard) => res.send({ data: delCard }));
+        }).then((delCard) => res.send({ data: delCard }));
       } else {
         throw new DelCardError('Нельзя удалить чужую карточку');
       }
     })
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Карточки с таким id не найдено'));
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new BadRequestError('Ошибка валидации данных'));
       } else {
         next(err);
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {

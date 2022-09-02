@@ -7,11 +7,7 @@ const BadAuthError = require('../errors/bad-auth-err');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 
-const {
-  STATUS_OK,
-  SEKRET_KEY,
-  SALT_ROUNDS,
-} = require('../utils/constants');
+const { STATUS_OK, SEKRET_KEY, SALT_ROUNDS } = require('../utils/constants');
 
 // GET /users — возвращаем всех пользователей
 module.exports.getUsers = (req, res, next) => {
@@ -26,7 +22,9 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, SEKRET_KEY, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SEKRET_KEY, {
+        expiresIn: '7d',
+      });
       res.send({ token });
     })
     .catch(() => {
@@ -67,15 +65,11 @@ module.exports.getCurrentUser = (req, res, next) => {
 
 // POST /signup — создаём пользователя по обязательным полям email и password
 module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { name, about, avatar } = req.body;
 
-  if (!email || !password) {
-    throw new BadRequestError('Поля email и password обязательны');
-  }
   // хешируем пароль
-  bcrypt.hash(req.body.password, SALT_ROUNDS)
+  bcrypt
+    .hash(req.body.password, SALT_ROUNDS)
     .then((hash) => User.create({
       name,
       about,
@@ -94,7 +88,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        next(new BadRequestError('Ошибка валидации данных'));
       } else if (err.code === 11000) {
         next(new ExistEmailError('Передан уже зарегистрированный email.'));
       } else {
@@ -106,9 +100,7 @@ module.exports.createUser = (req, res, next) => {
 // PATCH /users/me — обновляем профиль
 module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  if (!name || !about) {
-    throw new BadRequestError('Ошибка валидации данных');
-  }
+
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },

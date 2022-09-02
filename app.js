@@ -1,67 +1,67 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-const validator = require('validator');
+// const validator = require('validator');
 
-const routerUsers = require('./routes/users');
-const routerCards = require('./routes/cards');
-const auth = require('./middlewares/auth');
-const { createUser, login } = require('./controllers/users');
+// const routerUsers = require('./routes/users');
+// const routerCards = require('./routes/cards');
+// const auth = require('./middlewares/auth');
+// const { createUser, login } = require('./controllers/users');
 
 const {
   ERROR_SERVER,
   ERROR_NOT_FOUND,
-  CHECK_AVATAR,
+  // CHECK_AVATAR,
 } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
+const routes = require('./routes/index');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// роуты, не требующие авторизации
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().custom((value, helpers) => {
-      if (validator.isEmail(value)) {
-        return value;
-      }
-      return helpers.message('Некорректный email');
-    }),
-    password: Joi.string().required(),
-  }).unknown(true),
-}), login);
+// // роуты, не требующие авторизации
+// app.post('/signin', celebrate({
+//   body: Joi.object().keys({
+//     email: Joi.string().required().custom((value, helpers) => {
+//       if (validator.isEmail(value)) {
+//         return value;
+//       }
+//       return helpers.message('Некорректный email');
+//     }),
+//     password: Joi.string().required(),
+//   }),
+// }), login);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom((value, helpers) => {
-      if (CHECK_AVATAR.test(value)) {
-        return value;
-      }
-      return helpers.message('Некорректная ссылка');
-    }),
-    email: Joi.string().required().custom((value, helpers) => {
-      if (validator.isEmail(value)) {
-        return value;
-      }
-      return helpers.message('Некорректный email');
-    }),
-    password: Joi.string().required(),
-  }).unknown(true),
-}), createUser);
+// app.post('/signup', celebrate({
+//   body: Joi.object().keys({
+//     name: Joi.string().min(2).max(30),
+//     about: Joi.string().min(2).max(30),
+//     avatar: Joi.string().custom((value, helpers) => {
+//       if (CHECK_AVATAR.test(value)) {
+//         return value;
+//       }
+//       return helpers.message('Некорректная ссылка');
+//     }),
+//     email: Joi.string().required().custom((value, helpers) => {
+//       if (validator.isEmail(value)) {
+//         return value;
+//       }
+//       return helpers.message('Некорректный email');
+//     }),
+//     password: Joi.string().required(),
+//   }),
+// }), createUser);
 
-// авторизация
-app.use(auth);
+// // авторизация
+// app.use(auth);
 
-// роуты, которым авторизация нужна
-app.use('/', routerUsers);
-app.use('/', routerCards);
+// // роуты, которым авторизация нужна
+// app.use('/', routerUsers);
+// app.use('/', routerCards);
 
 // Обработка запроса на несуществующий адрес
 app.use((req, res) => {
@@ -81,10 +81,11 @@ async function main() {
   console.log(`Сервер запущен на ${PORT} порту`);
 }
 
-// Обработка ошибок celebrate
-app.use(errors());
+// подключаем роуты
+app.use(routes);
 
 // централизованная обработка ошибок
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = ERROR_SERVER, message } = err;
   const errorMessage = (statusCode === ERROR_SERVER) ? 'Ошибка на сервере' : message;
