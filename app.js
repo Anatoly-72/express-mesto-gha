@@ -2,9 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-
 const routes = require('./routes/index');
-
 const {
   ERROR_SERVER,
   ERROR_NOT_FOUND,

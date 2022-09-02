@@ -1,56 +1,25 @@
-const express = require('express');
-const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
-
+// const express = require('express');
+const router = require('express').Router();
 const userRouter = require('./users');
 const cardRouter = require('./cards');
 const auth = require('../middlewares/auth');
 const { login, createUser } = require('../controllers/users');
-
 const {
-  CHECK_AVATAR,
-} = require('../utils/constants');
+  vatidateUserBody,
+  validateAuthentication,
+} = require('../middlewares/validatons');
 
-const app = express();
+// const app = express();
 
 // роуты, не требующие авторизации
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().custom((value, helpers) => {
-      if (validator.isEmail(value)) {
-        return value;
-      }
-      return helpers.message('Некорректный email');
-    }),
-    password: Joi.string().required(),
-  }),
-}), login);
-
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom((value, helpers) => {
-      if (CHECK_AVATAR.test(value)) {
-        return value;
-      }
-      return helpers.message('Некорректная ссылка');
-    }),
-    email: Joi.string().required().custom((value, helpers) => {
-      if (validator.isEmail(value)) {
-        return value;
-      }
-      return helpers.message('Некорректный email');
-    }),
-    password: Joi.string().required(),
-  }),
-}), createUser);
+router.post('/signup', vatidateUserBody, createUser);
+router.post('/signin', validateAuthentication, login);
 
 // авторизация
-app.use(auth);
+router.use(auth);
 
 // роуты, которым авторизация нужна
-app.use('/', userRouter);
-app.use('/', cardRouter);
+router.use('/', userRouter);
+router.use('/', cardRouter);
 
-module.exports = app;
+module.exports = router;
