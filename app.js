@@ -13,12 +13,16 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  next(new NotFoundError('Запрашиваемая страница не найдена'));
+});
+
 // подключаем роуты
 app.use(routes);
 
-app.use((req, res, next) => {
-  next(new NotFoundError('Маршрут не найден'));
-});
+// app.use((req, res, next) => {
+//   next(new NotFoundError('Маршрут не найден'));
+// });
 
 // Обработка запроса на несуществующий адрес
 // app.use((req, res) => {
