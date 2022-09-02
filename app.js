@@ -2,12 +2,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const helmet = require('helmet');
 const routes = require('./routes/index');
 const centralErrorHandler = require('./middlewares/central-err');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
+
+// защищаем HTTP-заголовки
+app.use(helmet());
+app.disable('x-powered-by');
 
 // собираем JSON-формат
 app.use(bodyParser.json());
