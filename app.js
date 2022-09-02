@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
+const NotFoundError = require('./errors/not-found-err');
 const { ERROR_SERVER } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
@@ -14,6 +15,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // подключаем роуты
 app.use(routes);
+
+app.use((req, res, next) => {
+  next(new NotFoundError('Маршрут не найден'));
+});
 
 // Обработка запроса на несуществующий адрес
 // app.use((req, res) => {
