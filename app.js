@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
-const {
-  ERROR_SERVER,
-  ERROR_NOT_FOUND,
-} = require('./utils/constants');
+const { ERROR_SERVER } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -19,11 +16,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
 
 // Обработка запроса на несуществующий адрес
-app.use((req, res) => {
-  res
-    .status(ERROR_NOT_FOUND)
-    .send({ message: 'Запрашиваемая страница не найдена' });
-});
+// app.use((req, res) => {
+//   res
+//     .status(ERROR_NOT_FOUND)
+//     .send({ message: 'Запрашиваемая страница не найдена' });
+// });
 
 // Последовательное подключение: сначала база, затем порт
 async function main() {
@@ -40,7 +37,7 @@ async function main() {
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = ERROR_SERVER, message } = err;
-  const errorMessage = (statusCode === ERROR_SERVER) ? 'Ошибка на сервере' : message;
+  const errorMessage = statusCode === ERROR_SERVER ? 'Ошибка на сервере' : message;
   res.status(statusCode).send({ message: errorMessage });
   return next();
 });
