@@ -1,5 +1,5 @@
 const express = require('express');
-// const router = require('express').Router();
+// const routes = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 // const routerUsers = require('./users');

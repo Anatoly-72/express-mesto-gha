@@ -7,6 +7,7 @@ const { errors } = require('celebrate');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
+const routes = require('./routes/index');
 // const { createUser, login } = require('./controllers/users');
 
 const {
@@ -18,7 +19,6 @@ const {
 const { PORT = 3000 } = process.env;
 
 const app = express();
-const routes = require('./routes/index');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
