@@ -1,18 +1,27 @@
 const express = require('express');
-// const routes = require('express').Router();
+// const mongoose = require('mongoose');
+// const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-// const routerUsers = require('./users');
-// const routerCards = require('./cards');
-const { createUser, login } = require('../controllers/users');
 
-const app = express();
+// const routerUsers = require('./routes/users');
+// const routerCards = require('./routes/cards');
+// const auth = require('./middlewares/auth');
+// const routes = require('./routes/index');
+const { login, createUser } = require('../controllers/users');
 
 const {
   // ERROR_SERVER,
   // ERROR_NOT_FOUND,
   CHECK_AVATAR,
 } = require('../utils/constants');
+
+// const { PORT = 3000 } = process.env;
+
+const app = express();
+
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 // роуты, не требующие авторизации
 app.post('/signin', celebrate({
