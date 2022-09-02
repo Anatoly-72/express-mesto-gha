@@ -1,4 +1,3 @@
-// const express = require('express');
 const router = require('express').Router();
 const userRouter = require('./users');
 const cardRouter = require('./cards');
@@ -9,16 +8,12 @@ const {
   validateAuthentication,
 } = require('../middlewares/validatons');
 
-// const app = express();
-
-// роуты, не требующие авторизации
 router.post('/signup', vatidateUserBody, createUser);
 router.post('/signin', validateAuthentication, login);
 
-// авторизация
 router.use(auth);
 
-// роуты, которым авторизация нужна
+// все роуты, кроме /signup и /signin защищены авторизацией
 router.use('/', userRouter);
 router.use('/', cardRouter);
 

@@ -26,12 +26,14 @@ const vatidateUserBody = celebrate({
 
 const validateAuthentication = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().custom((value, helpers) => {
-      if (validator.isEmail(value)) {
-        return value;
-      }
-      return helpers.message('Некорректный email');
-    }),
+    email: Joi.string()
+      .required()
+      .custom((value, helpers) => {
+        if (validator.isEmail(value)) {
+          return value;
+        }
+        return helpers.message('Некорректный email');
+      }),
     password: Joi.string().required(),
   }),
 });
