@@ -4,9 +4,9 @@ const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 // const validator = require('validator');
 
-const routerUsers = require('./routes/users');
-const routerCards = require('./routes/cards');
-const auth = require('./middlewares/auth');
+// const routerUsers = require('./routes/users');
+// const routerCards = require('./routes/cards');
+// const auth = require('./middlewares/auth');
 const routes = require('./routes/index');
 // const { createUser, login } = require('./controllers/users');
 
@@ -59,12 +59,12 @@ app.use(routes);
 //   }),
 // }), createUser);
 
-// авторизация
-app.use(auth);
+// // авторизация
+// app.use(auth);
 
-// роуты, которым авторизация нужна
-app.use('/', routerUsers);
-app.use('/', routerCards);
+// // роуты, которым авторизация нужна
+// app.use('/', routerUsers);
+// app.use('/', routerCards);
 
 // Обработка запроса на несуществующий адрес
 app.use((req, res) => {

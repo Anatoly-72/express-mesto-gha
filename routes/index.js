@@ -4,9 +4,9 @@ const express = require('express');
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
-// const routerUsers = require('./routes/users');
-// const routerCards = require('./routes/cards');
-// const auth = require('./middlewares/auth');
+const routerUsers = require('./users');
+const routerCards = require('./cards');
+const auth = require('../middlewares/auth');
 // const routes = require('./routes/index');
 const { login, createUser } = require('../controllers/users');
 
@@ -55,5 +55,12 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
+
+// авторизация
+app.use(auth);
+
+// роуты, которым авторизация нужна
+app.use('/', routerUsers);
+app.use('/', routerCards);
 
 module.exports = app;
