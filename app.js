@@ -3,38 +3,22 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
-// const NotFoundError = require('./errors/not-found-err');
-const { ERROR_SERVER } = require('./utils/constants');
+const centralErrorHandler = require('./middlewares/central-err');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 
+// собираем JSON-формат
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // подключаем роуты
 app.use(routes);
 
-// app.use((req, res, next) => {
-//   next(new NotFoundError('Маршрут не найден'));
-// });
-
-// Обработка запроса на несуществующий адрес
-// app.use((req, res) => {
-//   res
-//     .status(ERROR_NOT_FOUND)
-//     .send({ message: 'Запрашиваемая страница не найдена' });
-// });
-
 // централизованная обработка ошибок
 app.use(errors());
-app.use((err, req, res, next) => {
-  const { statusCode = ERROR_SERVER, message } = err;
-  const errorMessage = statusCode === ERROR_SERVER ? 'Ошибка на сервере' : message;
-  res.status(statusCode).send({ message: errorMessage });
-  return next();
-});
+app.use(centralErrorHandler);
 
 // Последовательное подключение: сначала база, затем порт
 async function main() {
