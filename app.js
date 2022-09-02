@@ -23,6 +23,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// подключаем роуты
+app.use(routes);
+
 // роуты, не требующие авторизации
 // app.post('/signin', celebrate({
 //   body: Joi.object().keys({
@@ -82,7 +85,7 @@ async function main() {
 }
 
 // подключаем роуты
-app.use(routes);
+// app.use(routes);
 
 // централизованная обработка ошибок
 app.use(errors());
