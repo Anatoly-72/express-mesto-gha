@@ -2,8 +2,8 @@ const express = require('express');
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
-const routerUsers = require('./users');
-const routerCards = require('./cards');
+const userRouter = require('./users');
+const cardRouter = require('./cards');
 const auth = require('../middlewares/auth');
 const { login, createUser } = require('../controllers/users');
 
@@ -50,7 +50,7 @@ app.post('/signup', celebrate({
 app.use(auth);
 
 // роуты, которым авторизация нужна
-app.use('/', routerUsers);
-app.use('/', routerCards);
+app.use('/', userRouter);
+app.use('/', cardRouter);
 
 module.exports = app;
