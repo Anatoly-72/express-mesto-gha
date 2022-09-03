@@ -31,8 +31,9 @@ module.exports.deleteCard = (req, res, next) => {
       if (card.owner.toString() === req.user._id) {
         Card.findByIdAndRemove({
           _id: req.params.cardId,
-          owner: req.user._id,
-        }).then((delCard) => res.send({ data: delCard }));
+        })
+          .then((delCard) => res.send({ data: delCard }))
+          .catch(next);
       } else {
         throw new DelCardError('Нельзя удалить чужую карточку');
       }
@@ -43,8 +44,7 @@ module.exports.deleteCard = (req, res, next) => {
       } else {
         next(err);
       }
-    })
-    .catch(next);
+    });
 };
 
 module.exports.likeCard = (req, res, next) => {
