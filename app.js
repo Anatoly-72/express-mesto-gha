@@ -5,6 +5,7 @@ const { errors } = require('celebrate');
 const helmet = require('helmet');
 const routes = require('./routes/index');
 const centralErrorHandler = require('./middlewares/central-err');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -18,8 +19,14 @@ app.disable('x-powered-by');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// подключаем логгер запросов
+app.use(requestLogger);
+
 // подключаем роуты
 app.use(routes);
+
+// подключаем логгер ошибок
+app.use(errorLogger);
 
 // централизованная обработка ошибок
 app.use(errors());
